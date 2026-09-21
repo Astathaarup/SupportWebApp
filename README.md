@@ -101,3 +101,68 @@ Applikationen indeholder følgende sider:
 - `/` - Forside
 - `/support/create` - Opret en supporthenvendelse
 - `/support` - Se alle supporthenvendelser
+
+## Opret Azure Cosmos DB
+
+Der kan oprettes en Cosmos DB-konto, database og container med Azure CLI.
+
+Opret først en resource group:
+
+```bash
+az group create \
+  --name IBasSupportRG \
+  --location swedencentral
+```
+
+Opret derefter en Cosmos DB-konto:
+
+```bash
+az cosmosdb create \
+  --name <UNIKT_KONTONAVN> \
+  --resource-group IBasSupportRG \
+  --locations regionName=swedencentral failoverPriority=0 isZoneRedundant=False \
+  --enable-free-tier true
+```
+
+Opret databasen:
+
+```bash
+az cosmosdb sql database create \
+  --account-name <UNIKT_KONTONAVN> \
+  --resource-group IBasSupportRG \
+  --name IBasSupportDB
+```
+
+Opret containeren:
+
+```bash
+az cosmosdb sql container create \
+  --account-name <UNIKT_KONTONAVN> \
+  --resource-group IBasSupportRG \
+  --database-name IBasSupportDB \
+  --name ibassupport \
+  --partition-key-path "/category" \
+  --throughput 400
+```
+
+Applikationen forventer databasen `IBasSupportDB`, containeren `ibassupport` og partition key `/category`.
+
+Connection string til Cosmos DB skal gemmes med .NET User Secrets og må ikke gemmes direkte i kildekoden.
+
+## Status
+
+Projektets centrale funktionalitet er implementeret.
+
+Følgende er færdigt:
+
+- Oprettelse af supporthenvendelser
+- Validering af formularen
+- Lagring i Azure Cosmos DB
+- Hentning og visning af supporthenvendelser
+- Navigation mellem siderne
+- Tilpasset forside
+- Cosmos DB-konfiguration med User Secrets
+
+Der mangler ingen funktioner i forhold til de centrale krav i opgaven.
+
+Et muligt næste trin kunne være at udvide løsningen med mulighed for at redigere, slette eller ændre status på en supporthenvendelse.
