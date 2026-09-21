@@ -1,0 +1,74 @@
+@page "/support/create"
+@rendermode InteractiveServer
+
+@using SupportWebApp.Models
+@using SupportWebApp.Services
+@inject CosmosDbService CosmosDbService
+
+<PageTitle>Opret supporthenvendelse</PageTitle>
+
+<h1>Opret supporthenvendelse</h1>
+
+<p>Udfyld formularen nedenfor for at sende en supporthenvendelse.</p>
+
+@if (!string.IsNullOrEmpty(successMessage))
+{
+    <div class="alert alert-success">
+        @successMessage
+    </div>
+}
+
+<EditForm Model="@supportMessage"
+          OnValidSubmit="@HandleValidSubmit"
+          FormName="supportForm">
+
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="mb-3">
+        <label class="form-label">Navn</label>
+        <InputText class="form-control"
+                   @bind-Value="supportMessage.Name" />
+        <ValidationMessage For="@(() => supportMessage.Name)" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Email</label>
+        <InputText class="form-control"
+                   @bind-Value="supportMessage.Email" />
+        <ValidationMessage For="@(() => supportMessage.Email)" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Emne</label>
+        <InputText class="form-control"
+                   @bind-Value="supportMessage.Subject" />
+        <ValidationMessage For="@(() => supportMessage.Subject)" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Besked</label>
+        <InputTextArea class="form-control"
+                       @bind-Value="supportMessage.Message" />
+        <ValidationMessage For="@(() => supportMessage.Message)" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+        Send henvendelse
+    </button>
+
+</EditForm>
+
+@code {
+    private SupportMessage supportMessage = new();
+    private string successMessage = "";
+
+    private async Task HandleValidSubmit()
+    {
+        await CosmosDbService.AddSupportMessageAsync(supportMessage);
+
+        successMessage = "Din supporthenvendelse er blevet gemt.";
+
+        supportMessage = new SupportMessage();
+    }
+}

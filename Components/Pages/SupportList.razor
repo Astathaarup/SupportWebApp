@@ -1,0 +1,60 @@
+@page "/support"
+@rendermode InteractiveServer
+
+@using SupportWebApp.Models
+@using SupportWebApp.Services
+@inject CosmosDbService CosmosDbService
+
+<PageTitle>Supporthenvendelser</PageTitle>
+
+<h1>Supporthenvendelser</h1>
+
+<p>Her kan du se alle indsendte supporthenvendelser.</p>
+
+@if (supportMessages == null)
+{
+    <p>Indlæser...</p>
+}
+else if (supportMessages.Count == 0)
+{
+    <p>Der er ingen supporthenvendelser endnu.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Navn</th>
+                <th>Email</th>
+                <th>Emne</th>
+                <th>Besked</th>
+                <th>Oprettet</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var message in supportMessages)
+            {
+                <tr>
+                    <td>@message.Name</td>
+                    <td>@message.Email</td>
+                    <td>@message.Subject</td>
+                    <td>@message.Message</td>
+                    <td>
+                        @message.CreatedAt.ToLocalTime().ToString("dd-MM-yyyy HH:mm")
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<SupportMessage>? supportMessages;
+
+    protected override async Task OnInitializedAsync()
+    {
+        supportMessages =
+            await CosmosDbService.GetSupportMessagesAsync();
+    }
+}
